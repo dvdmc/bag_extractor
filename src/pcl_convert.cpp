@@ -61,14 +61,16 @@ main (int argc, char** argv)
   ros::init (argc, argv, "pcl_convert");
   ros::NodeHandle nh("~");
 
-  std::string bagname, velodyne_topic;
+  std::string bag_name, velodyne_topic;
 
-  nh.getParam("bagname",bagname);
+  nh.getParam("bagname",bag_name);
   nh.getParam("lidar_topic",velodyne_topic);
-  ROS_INFO("Subscribed to %s",velodyne_topic.c_str());
-  // Create a ROS subscriber for the input point cloud
-  ros::Subscriber sub = nh.subscribe (velodyne_topic.c_str(), 1, cloud_cb);
 
+  ROS_INFO("Trying to open %s and extract from topic %s",bag_name.c_str(),velodyne_topic.c_str());
+
+  // Create a ROS subscriber for the input point cloud
+  //ros::Subscriber sub = nh.subscribe (velodyne_topic.c_str(), 1, cloud_cb);
+  
   while(ros::ok()){
 
     // Spin
