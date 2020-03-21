@@ -67,6 +67,7 @@ main (int argc, char** argv)
 
   nh.getParam("bagname",bagname);
   nh.getParam("lidar_topic",velodyne_topic);
+
   ROS_INFO("Subscribed to %s",velodyne_topic.c_str());
   // Create a ROS subscriber for the input point cloud
   ros::Subscriber sub = nh.subscribe (velodyne_topic.c_str(), 1, velodyne2bin);
