@@ -8,7 +8,7 @@
   <arg name="velodyne_topic" default="/velodyne_points"/>
   <arg name="velodyne_folder" default="velodyne_points/"/>
 
-  <node name="rosbag" type="play" pkg="rosbag" required="true" args="$(arg bagname)"/>
+  <node name="rosbag" type="play" pkg="rosbag" required="true" args="$(arg bagname) -r 0.01"/>
   
   <node name="image_transport_rgb" type="republish" pkg="image_transport" args="compressed in:=$(arg rgb_compressed_topic) raw out:=camera_rgb/image"/>
   <node name="extract_rgb" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen">
