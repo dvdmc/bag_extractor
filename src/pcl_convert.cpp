@@ -23,7 +23,8 @@ template< typename Type> std::string to_str (const Type & t){
 
 //Global counter for the number of files
 int counter;
-std::string bagname;
+std::string folder;
+std::string velodyne_topic;
 //Function to create a file storing all the point cloud as a 4xn matrix in a binary file
 //with the format: xyzintensity
 
@@ -40,7 +41,7 @@ velodyne2bin(const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
   os << std::setw(14) << std::setfill('0') << filename;
   filename = os.str();
 
-  filename = "./" + bagname +  "velodyne_points/" + filename;
+  filename = "./" + folder + "data/" + filename;
 
   ROS_INFO("Saving PointCloud into: %s",filename.c_str());
 
@@ -63,10 +64,8 @@ main (int argc, char** argv)
   ros::init (argc, argv, "pcl_convert");
   ros::NodeHandle nh("~");
 
-  std::string velodyne_topic;
-
-  nh.getParam("bagname",bagname);
-  nh.getParam("lidar_topic",velodyne_topic);
+  nh.getParam("folder",folder);
+  nh.getParam("velodyne_topic",velodyne_topic);
 
   ROS_INFO("Subscribed to %s",velodyne_topic.c_str());
   // Create a ROS subscriber for the input point cloud

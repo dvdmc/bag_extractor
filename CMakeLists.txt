@@ -16,6 +16,10 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+find_package(Boost REQUIRED COMPONENTS
+  date_time
+)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -121,6 +125,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -137,7 +142,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(pcl_convert src/pcl_convert.cpp)
-
+add_executable(img_tmstp2txt src/img_tmstp2txt.cpp)
+add_executable(pc_tmstp2txt src/pc_tmstp2txt.cpp)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -153,6 +159,15 @@ target_link_libraries(pcl_convert
    ${catkin_LIBRARIES}
 )
 
+target_link_libraries(img_tmstp2txt
+   ${catkin_LIBRARIES}
+   ${Boost_LIBRARIES}
+)
+
+target_link_libraries(pc_tmstp2txt
+   ${catkin_LIBRARIES}
+   ${Boost_LIBRARIES}
+)
 #############
 ## Install ##
 #############
