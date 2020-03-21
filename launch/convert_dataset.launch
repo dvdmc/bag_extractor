@@ -1,6 +1,6 @@
 <launch>
   <arg name="bagname"/>
-  <arg name="folder"/>
+  <arg name="folder" default="raw_bag/"/>
   <arg name="rgb_compressed_topic" default="/axis_rgb/camera/image_raw"/>
   <arg name="the_compressed_topic" default="/axis_the/camera/image_raw"/>
   <arg name="lidar_topic" default="/velodyne_points"/>
@@ -10,14 +10,14 @@
   <node name="image_transport_rgb" type="republish" pkg="image_transport" args="compressed in:=$(arg rgb_compressed_topic) raw out:=camera_rgb/image"/>
   <node name="extract_rgb" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen">
   <remap from="image" to="camera_rgb/image"/>
-  <param name="filename_format" value="$(arg folder)/rgb_imgs/%010i.png"/>
+  <param name="filename_format" value="$(arg folder)rgb_imgs/%010i.png"/>
   </node>
   
   <node name="image_transport_the" type="republish" pkg="image_transport" args="compressed in:=$(arg the_compressed_topic) raw out:=camera_the/image"/>
   <node name="extract_the" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen">
   <remap from="image" to="camera_the/image"/>
-  <param name="filename_format" value="$(arg folder)/the_imgs/%010i.png"/>
+  <param name="filename_format" value="$(arg folder)the_imgs/%010i.png"/>
   </node>
 
-  <node name="pcl_convert" type="pcl_convert" pkg="pcl_convert" output="screen" args="_bagname:=$(arg folder) _lidar_topic:=$(arg lidar_topic)"/>
+  <node name="pcl_convert" type="pcl_convert" pkg="bag_extractor" output="screen" args="_bagname:=$(arg folder) _lidar_topic:=$(arg lidar_topic)"/>
 </launch>

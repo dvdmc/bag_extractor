@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-
+#include <iomanip>
 // PCL specific includes
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
@@ -14,7 +14,7 @@
 //Library to manage bags
 #include <rosbag/bag.h>
 
-//Function to convert from t to string using sstream
+//Function to convert from int to string using sstream
 template< typename Type> std::string to_str (const Type & t){
   std::ostringstream os;
   os << t;
@@ -23,31 +23,33 @@ template< typename Type> std::string to_str (const Type & t){
 
 //Global counter for the number of files
 int counter;
-
+std::string bagname;
 //Function to create a file storing all the point cloud as a 4xn matrix in a binary file
 //with the format: xyzintensity
 
 void
-cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
+velodyne2bin(const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
 {
   //Get the number of the file and creates it according to the specifications
   std::string number = to_str(counter);
-  std::string filename = ".txt";
+  std::string filename = ".bin";
   filename = number + filename;
 
-  while(filename.length() <= 13){
-  filename = '0' + filename;
-  }
+  std::ostringstream os;
 
-  filename="./velodyne_points/" + filename;
+  os << std::setw(14) << std::setfill('0') << filename;
+  filename = os.str();
 
-  ROS_INFO("saving into: %s",filename.c_str());
+  filename = "./" + bagname +  "velodyne_points/" + filename;
+
+  ROS_INFO("Saving PointCloud into: %s",filename.c_str());
+
   std::ofstream out;
-  out.open(filename.c_str(), std::ios::out);
+  out.open(filename.c_str(), std::ios::binary);
 
   // Create iterator for the data
   for (sensor_msgs::PointCloud2ConstIterator<float> it(*cloud_msg, "x");it != it.end(); ++it){
-    out << it[0] <<  it[1] <<  it[2] << it[3] << std::endl;
+    out.write(reinterpret_cast<const char*>( &it[0] ), sizeof(float)*4);
   }
   out.close();
   counter++;
@@ -61,13 +63,13 @@ main (int argc, char** argv)
   ros::init (argc, argv, "pcl_convert");
   ros::NodeHandle nh("~");
 
-  std::string bagname, velodyne_topic;
+  std::string velodyne_topic;
 
   nh.getParam("bagname",bagname);
   nh.getParam("lidar_topic",velodyne_topic);
   ROS_INFO("Subscribed to %s",velodyne_topic.c_str());
   // Create a ROS subscriber for the input point cloud
-  ros::Subscriber sub = nh.subscribe (velodyne_topic.c_str(), 1, cloud_cb);
+  ros::Subscriber sub = nh.subscribe (velodyne_topic.c_str(), 1, velodyne2bin);
 
   while(ros::ok()){
 
