@@ -2,9 +2,9 @@
   <arg name="bagname"/>
   <arg name="folder" default="raw_bag/"/>
   <arg name="rgb_compressed_topic" default="/axis_rgb/camera/image_raw"/>
-  <arg name="rgb_folder" default="camera00/"/>
+  <arg name="rgb_folder" default="image00/"/>
   <arg name="the_compressed_topic" default="/axis_the/camera/image_raw"/>
-  <arg name="the_folder" default="camera01/"/>
+  <arg name="the_folder" default="image01/"/>
   <arg name="velodyne_topic" default="/velodyne_points"/>
   <arg name="velodyne_folder" default="velodyne_points/"/>
 
