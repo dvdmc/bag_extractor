@@ -36,7 +36,7 @@ void getTimestamp(const sensor_msgs::PointCloud2ConstPtr& msg)
   auto facet = new boost::posix_time::time_facet("%Y-%m-%d %H:%M:%s");
   ss.imbue(std::locale(std::locale::classic(), facet));
   ss << rawtime << std::endl;
-  ROS_INFO("Saved time: %s", ss.str().c_str());
+  ROS_INFO("Saved pcl time: %s", ss.str().c_str());
   out.write(&ss.str().c_str()[0], ss.str().size());
 }
 
