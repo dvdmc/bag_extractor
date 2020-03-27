@@ -1,6 +1,6 @@
 <launch>
   <arg name="bagname"/>
-  <arg name="folder" default="raw_bag/"/>
+  <arg name="folder" default="result/"/>
   <arg name="rgb_compressed_topic" default="/axis_rgb/camera/image_raw"/>
   <arg name="rgb_folder" default="image00/"/>
   <arg name="the_compressed_topic" default="/axis_the/camera/image_raw"/>
