@@ -1,31 +1,59 @@
 <launch>
-  <arg name="bagname"/>
-  <arg name="folder" default="result/"/>
-  <arg name="rgb_compressed_topic" default="/axis_rgb/camera/image_raw"/>
-  <arg name="rgb_folder" default="image00/"/>
-  <arg name="the_compressed_topic" default="/axis_the/camera/image_raw"/>
-  <arg name="the_folder" default="image01/"/>
-  <arg name="velodyne_topic" default="/velodyne_points"/>
-  <arg name="velodyne_folder" default="velodyne_points/"/>
 
-  <node name="create_directories" type="createDirectories.sh" pkg="bag_extractor"/>
+  <!--Global route to the bagfile to extract-->
+  <arg name="bagname"/>
+
+  <!--Folder to contain the outputs inside ~/.ros folder-->
+  <arg name="folder" default="result/"/>
+
+  <!--Image compressed topic in the bag-->
+  <arg name="rgb_compressed_topic" default="/axis_rgb/camera/image_raw"/>
+  <!--Folder to save the images under the $folder directory-->
+  <arg name="rgb_folder" default="image00/data/"/>
+
+  <!--Image compressed topic in the bag-->
+  <arg name="the_compressed_topic" default="/axis_the/camera/image_raw"/>
+  <!--Folder to save the images under the $folder directory-->
+  <arg name="the_folder" default="image01/data/"/>
+
+  <!--Velodyne points topic in the bag-->
+  <arg name="velodyne_topic" default="/velodyne_points"/>
+  <!--Folder to save the pc data under the $folder directory-->
+  <arg name="velodyne_folder" default="velodyne_points/data/"/>
+
+  <!--Queue size for all the topics (for simplicity)-->
+  <arg name="queue_size" default="10"/>
+
+  <!--Script to create the directories where the data is going to be saved. Its args are: -f $folder $subfolder1 $subfolder3 $subfolder2...-->
+  <node name="create_directories" type="createDirectories.sh" pkg="bag_extractor" args="-f $(arg folder) $(arg rgb_folder) $(arg the_folder) $(arg velodyne_folder)" output="screen"/>
+
+  <!--Node to extract images from topic. It decompress the image using image_transport and save it with extract_images-->
   <node name="image_transport_rgb" type="republish" pkg="image_transport" args="compressed in:=$(arg rgb_compressed_topic) raw out:=camera_rgb/image"/>
   <node name="extract_rgb" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen">
-  <remap from="image" to="camera_rgb/image"/>
-  <param name="filename_format" value="$(arg folder)$(arg rgb_folder)data/%010i.png"/>
+    <remap from="image" to="camera_rgb/image"/>
+    <param name="filename_format" value="$(arg folder)$(arg rgb_folder)%010i.png"/>
   </node>
-  <node name="im_tmstp_rgb" type="img_tmstp2txt" pkg="bag_extractor" output="screen" args="_topic:=$(arg rgb_compressed_topic)/compressed _folder:=$(arg folder)$(arg rgb_folder)"/>
+  <!--Node to extract timestamps from images topics-->
+  <!--!!!Notice the relative path to save the file above the data folder-->
+  <node name="im_tmstp_rgb" type="img_tmstp2txt" pkg="bag_extractor" output="screen" args="_folder:=$(arg folder)$(arg rgb_folder)../ _topic:=$(arg rgb_compressed_topic)/compressed _queue_size:=$(arg queue_size)"/>
   
+  <!--Node to extract images from topic. It decompress the image using image_transport and save it with extract_images-->
   <node name="image_transport_the" type="republish" pkg="image_transport" args="compressed in:=$(arg the_compressed_topic) raw out:=camera_the/image"/>
   <node name="extract_the" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen">
-  <remap from="image" to="camera_the/image"/>
-  <param name="filename_format" value="$(arg folder)$(arg the_folder)data/%010i.png"/>
+    <remap from="image" to="camera_the/image"/>
+    <param name="filename_format" value="$(arg folder)$(arg the_folder)%010i.png"/>
   </node>
-  <node name="im_tmstp_the" type="img_tmstp2txt" pkg="bag_extractor" output="screen" args="_topic:=$(arg the_compressed_topic)/compressed _folder:=$(arg folder)$(arg the_folder)"/>
+  <!--Node to extract timestamps from images topics-->
+  <!--!!!Notice the relative path to save the file above the data folder-->
+  <node name="im_tmstp_the" type="img_tmstp2txt" pkg="bag_extractor" output="screen" args="_folder:=$(arg folder)$(arg the_folder)../ _topic:=$(arg the_compressed_topic)/compressed _queue_size:=$(arg queue_size)"/>
 
-  <node name="pcl_convert" type="pcl_convert" pkg="bag_extractor" output="screen" args="_folder:=$(arg folder)$(arg velodyne_folder) _velodyne_topic:=$(arg velodyne_topic)"/>
-  <node name="pc_tmstp" type="pc_tmstp2txt" pkg="bag_extractor" output="screen" args="_topic:=$(arg velodyne_topic) _folder:=$(arg folder)$(arg velodyne_folder)"/>
+  <!--Node to extract pointcloud data from topic. It saves the data in a .bin file with the format: xyzluminosity-->
+  <node name="pc2bin" type="pc2bin" pkg="bag_extractor" output="screen" args="_folder:=$(arg folder)$(arg velodyne_folder) _topic:=$(arg velodyne_topic) _queue_size:=$(arg queue_size)"/>
+  <!--Node to extract timestamps from pointcloud topics-->
+  <!--!!!Notice the relative path to save the file above the data folder-->
+  <node name="pc_tmstp" type="pc_tmstp2txt" pkg="bag_extractor" output="screen" args="_folder:=$(arg folder)$(arg velodyne_folder)../ _topic:=$(arg velodyne_topic) _queue_size:=$(arg queue_size)"/>
 
+  <!--Node to reproduce the rosbag. Notice the reduce rate to let the other nodes process the data-->
   <node name="rosbag" type="play" pkg="rosbag" required="true" output="screen" args="$(arg bagname) -r 0.075"/>
 
 </launch>

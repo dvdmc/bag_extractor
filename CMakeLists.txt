@@ -7,7 +7,8 @@ project(bag_extractor)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
+find_package(catkin REQUIRED 
+COMPONENTS
   roscpp
   rospy
   sensor_msgs
@@ -108,9 +109,17 @@ find_package(Boost REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES bag_extractor
-#  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp rospy sensor_msgs std_msgs
+  INCLUDE_DIRS 
+    include
+  LIBRARIES 
+    ${PROJECT_NAME}_core
+  CATKIN_DEPENDS 
+    pcl_conversions 
+    pcl_ros 
+    roscpp 
+    rospy 
+    sensor_msgs 
+    std_msgs
 #  DEPENDS system_lib
 )
 
@@ -121,15 +130,15 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/bag_extractor.cpp
-# )
+ add_library(${PROJECT_NAME}_core
+   src/Utils.cpp
+ )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -139,9 +148,19 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(pcl_convert src/pcl_convert.cpp)
-add_executable(img_tmstp2txt src/img_tmstp2txt.cpp)
-add_executable(pc_tmstp2txt src/pc_tmstp2txt.cpp)
+add_executable(pc2bin 
+  src/pc2bin_node.cpp
+  src/PC2BIN.cpp
+)
+
+add_executable(img_tmstp2txt 
+  src/img_tmstp2txt_node.cpp
+  src/ImgTmstp2Txt.cpp
+)
+add_executable(pc_tmstp2txt
+  src/pc_tmstp2txt_node.cpp
+  src/PCTmstp2Txt.cpp
+)
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -153,18 +172,25 @@ add_executable(pc_tmstp2txt src/pc_tmstp2txt.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(pcl_convert
-   ${catkin_LIBRARIES}
+target_link_libraries(${PROJECT_NAME}_core
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(pc2bin
+  ${PROJECT_NAME}_core
+  ${catkin_LIBRARIES}
 )
 
 target_link_libraries(img_tmstp2txt
-   ${catkin_LIBRARIES}
+  ${PROJECT_NAME}_core   
+  ${catkin_LIBRARIES}
    ${Boost_LIBRARIES}
 )
 
 target_link_libraries(pc_tmstp2txt
-   ${catkin_LIBRARIES}
-   ${Boost_LIBRARIES}
+  ${PROJECT_NAME}_core   
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
 )
 #############
 ## Install ##
