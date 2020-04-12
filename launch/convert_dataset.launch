@@ -9,12 +9,12 @@
   <!--Image compressed topic in the bag-->
   <arg name="rgb_compressed_topic" default="/axis_rgb/camera/image_raw"/>
   <!--Folder to save the images under the $folder directory-->
-  <arg name="rgb_folder" default="image00/data/"/>
+  <arg name="rgb_folder" default="image_00/data/"/>
 
   <!--Image compressed topic in the bag-->
   <arg name="the_compressed_topic" default="/axis_the/camera/image_raw"/>
   <!--Folder to save the images under the $folder directory-->
-  <arg name="the_folder" default="image01/data/"/>
+  <arg name="the_folder" default="image_01/data/"/>
 
   <!--Velodyne points topic in the bag-->
   <arg name="velodyne_topic" default="/velodyne_points"/>
