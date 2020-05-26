@@ -118,7 +118,7 @@ catkin_package(
   CATKIN_DEPENDS
     pcl_conversions
     pcl_ros
-    roscppp
+    roscpp
     sensor_msgs
     std_msgs
     rosbag

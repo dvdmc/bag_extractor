@@ -54,7 +54,8 @@ To build from source, clone the latest version from this repository into your ca
 
 Check the launchfile to create one that adjusts to your specific needs in structure, sensors and topics. A minimal example is included as a test and can be run with:
 
-    roslaunch bag_extractor extract_dataset.launch bag:="[...]/catkin_ws/test.bag"
+    roslaunch bag_extractor extract_dataset.launch\ 
+        bag:="[...]/catkin_ws/test/test.bag"
 
 ## Launch files
 
