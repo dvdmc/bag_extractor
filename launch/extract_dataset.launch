@@ -1,0 +1,100 @@
+<launch>
+
+  <!--Global route to the bagfile to extract-->
+  <arg name="bag"/>
+
+  <!--Folder to contain the outputs inside ~/.ros folder-->
+  <arg name="folder" default="result/"/>
+
+  <!--Topics-->
+  <!--Image compressed topic in the bag-->
+  <arg name="rgb_compressed_topic" default="/axis_rgb/camera/image_raw/compressed"/>
+  <!--Image compressed topic in the bag-->
+  <arg name="the_compressed_topic" default="/axis_the/camera/image_raw/compressed"/>
+  <!--Velodyne points topic in the bag-->
+  <arg name="velodyne_topic" default="/velodyne_points"/>
+  <!--IMU topic in the bag-->
+  <arg name="imu_topic" default="/gx5/imu/data"/>
+  <!--GPS user topics in the bag-->
+  <arg name="gps_user_topic" default="/maxon_user/gpgga,/maxon_user/gprmc"/>
+  <!--GPS rtk topics in the bag-->
+  <arg name="gps_rtk_topic" default="/maxon_rtk/gpgga,/maxon_rtk/gprmc"/>
+
+  <!--Folder names-->
+  <!--Folder to save the images under the $folder directory-->
+  <arg name="rgb_folder" default="image_rgb/"/>
+  <!--Folder to save the images under the $folder directory-->
+  <arg name="the_folder" default="image_the/"/>
+  <!--Folder to save the pc data under the $folder directory-->
+  <arg name="velodyne_folder" default="velodyne_points/"/>
+  <!--Folder to save the imu data under the $folder directory-->
+  <arg name="imu_folder" default="imu/"/>
+  <!--Folder to save the gps user data under the $folder directory-->
+  <arg name="gps_user_folder" default="gps_user/"/>
+  <!--Folder to save the gps rtk data under the $folder directory-->
+  <arg name="gps_rtk_folder" default="gps_rtk/"/>
+
+
+  <!--Time selection-->
+  <!--Start time for the extraction of data-->
+  <arg name="start_time" default="-1"/>
+  <!--End time for the extraction of data-->
+  <arg name="end_time" default="-1"/>
+
+  <!--Script to create the directories where the data is going to be saved. Its args are: -f $folder $subfolder1 $subfolder3 $subfolder2...-->
+  <node name="create_directories" type="createDirectories.sh" pkg="bag_extractor" 
+  args="-f  $(arg folder) 
+            $(arg rgb_folder) 
+            $(arg the_folder) 
+            $(arg velodyne_folder) 
+            $(arg imu_folder) 
+            $(arg gps_user_folder) 
+            $(arg gps_rtk_folder)" 
+            
+            output="screen"/>
+
+  <!--Nodes to extract data from topics.-->
+  <node name="rgb_extractor" type="img2jpg" pkg="bag_extractor" output="screen"
+  args="_folder:=$(arg folder)$(arg rgb_folder)
+        _topic:=$(arg rgb_compressed_topic)
+        _bag:=$(arg bag)
+        _start_time:=$(arg start_time)
+        _end_time:=$(arg end_time)"/>
+
+
+  <node name="the_extractor" type="img2jpg" pkg="bag_extractor" output="screen"
+  args="_folder:=$(arg folder)$(arg the_folder)
+        _topic:=$(arg the_compressed_topic)
+        _bag:=$(arg bag)
+        _start_time:=$(arg start_time)
+        _end_time:=$(arg end_time)"/>
+
+  <node name="velodyne_extractor" type="pc2bin" pkg="bag_extractor" output="screen"
+  args="_folder:=$(arg folder)$(arg velodyne_folder)
+        _topic:=$(arg velodyne_topic)
+        _bag:=$(arg bag)
+        _start_time:=$(arg start_time)
+        _end_time:=$(arg end_time)"/>
+
+  <node name="imu_extractor" type="imu2txt" pkg="bag_extractor" output="screen"
+  args="_folder:=$(arg folder)$(arg imu_folder)
+        _topic:=$(arg imu_topic)
+        _bag:=$(arg bag)
+        _start_time:=$(arg start_time)
+        _end_time:=$(arg end_time)"/>
+
+  <node name="gps_user_extractor" type="gps2txt" pkg="bag_extractor" output="screen"
+  args="_folder:=$(arg folder)$(arg gps_user_folder)
+        _topic:=$(arg gps_user_topic)
+        _bag:=$(arg bag)
+        _start_time:=$(arg start_time)
+        _end_time:=$(arg end_time)"/>
+
+  <node name="gps_rtk_extractor" type="gps2txt" pkg="bag_extractor" output="screen"
+  args="_folder:=$(arg folder)$(arg gps_rtk_folder)
+        _topic:=$(arg gps_rtk_topic)
+        _bag:=$(arg bag)
+        _start_time:=$(arg start_time)
+        _end_time:=$(arg end_time)"/>
+
+</launch>

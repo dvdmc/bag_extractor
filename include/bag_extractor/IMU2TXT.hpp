@@ -5,13 +5,19 @@
 // ROS
 #include <ros/ros.h>
 
+// Quaternion conversion
+#include <tf/tf.h>
+
 // Bag reading and processing
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 
-// PC specific includes
-#include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/point_cloud2_iterator.h>
+// IMU specific includes
+#include <sensor_msgs/Imu.h>
+
+//Boost
+//#include <boost/lexical_cast.hpp>
+// Can be used as an alternative to std::to_str but it seems that is slower for "float"
 
 // STD
 #include <string>
@@ -22,7 +28,7 @@ namespace bag_extractor
 /*!
 *  Main class for the node to handle the ROS interfacing.
 */
-class PC2BIN
+class IMU2TXT
 {
 
 public:
@@ -30,12 +36,12 @@ public:
      * Constructor.
      * @param nodeHandle the ROS node handle.
      */
-    PC2BIN(ros::NodeHandle &nodeHandle);
+    IMU2TXT(ros::NodeHandle &nodeHandle);
 
     /*!
      * Destructor;
      */
-    virtual ~PC2BIN();
+    virtual ~IMU2TXT();
 
     /*!
      * Extract all data.
@@ -58,10 +64,10 @@ private:
     void setTimeFilters_(ros::Time &start, ros::Time &end);
 
     /*!
-     * ROS topic callback method.
-     * @param message the received message.
+     * Method to process the message obtained from the message instance.
+     * @param msg the message to process.
      */
-    void pcMsgProcess_(const sensor_msgs::PointCloud2ConstPtr &msg);
+    void imuMsgProcess_(const sensor_msgs::ImuConstPtr &msg);
 
     //! ROS node handle.
     ros::NodeHandle &nodeHandle_;
@@ -72,10 +78,10 @@ private:
     //! Folder name for the saved point clouds
     std::string folder_;
 
-    //! File to save the Velodyne data
+    //! File to save the Imu data
     std::ofstream out_;
 
-    //! Velodyne topic name
+    //! Imu topic name
     std::string topic_;
 
     //! Bag name
@@ -88,7 +94,7 @@ private:
     double end_time_filter_;
 
     //! Extension of the file to save the data.
-    const std::string EXTENSION_ = ".bin";
+    const std::string EXTENSION_ = ".txt";
 };
 
 } // namespace bag_extractor

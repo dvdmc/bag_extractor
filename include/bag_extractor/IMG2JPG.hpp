@@ -5,13 +5,29 @@
 // ROS
 #include <ros/ros.h>
 
+// Quaternion conversion
+#include <tf/tf.h>
+
 // Bag reading and processing
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 
-// PC specific includes
-#include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/point_cloud2_iterator.h>
+// IMU specific includes
+#include <sensor_msgs/CompressedImage.h>
+
+// OpenCV
+
+#include <opencv2/imgcodecs.hpp>
+
+// CV bridge
+#include <cv_bridge/cv_bridge.h>
+
+// Image transport
+#include <image_transport/image_transport.h>
+
+//Boost
+//#include <boost/lexical_cast.hpp>
+// Can be used as an alternative to std::to_str but it seems that is slower for "float"
 
 // STD
 #include <string>
@@ -20,9 +36,9 @@ namespace bag_extractor
 {
 
 /*!
-*  Main class for the node to handle the ROS interfacing.
+*  Main class for the image bag extractor.
 */
-class PC2BIN
+class IMG2JPG
 {
 
 public:
@@ -30,12 +46,12 @@ public:
      * Constructor.
      * @param nodeHandle the ROS node handle.
      */
-    PC2BIN(ros::NodeHandle &nodeHandle);
+    IMG2JPG(ros::NodeHandle &nodeHandle);
 
     /*!
      * Destructor;
      */
-    virtual ~PC2BIN();
+    virtual ~IMG2JPG();
 
     /*!
      * Extract all data.
@@ -61,7 +77,7 @@ private:
      * ROS topic callback method.
      * @param message the received message.
      */
-    void pcMsgProcess_(const sensor_msgs::PointCloud2ConstPtr &msg);
+    void imgMsgProcess_(const sensor_msgs::CompressedImageConstPtr &msg);
 
     //! ROS node handle.
     ros::NodeHandle &nodeHandle_;
@@ -72,7 +88,7 @@ private:
     //! Folder name for the saved point clouds
     std::string folder_;
 
-    //! File to save the Velodyne data
+    //! File to save the Imu data
     std::ofstream out_;
 
     //! Velodyne topic name
@@ -86,9 +102,12 @@ private:
 
     double start_time_filter_;
     double end_time_filter_;
+    
+    //! Encoding of the compressed images
+    // std::string encoding_ = "bgr8";
 
     //! Extension of the file to save the data.
-    const std::string EXTENSION_ = ".bin";
+    const std::string EXTENSION_ = ".jpg";
 };
 
 } // namespace bag_extractor

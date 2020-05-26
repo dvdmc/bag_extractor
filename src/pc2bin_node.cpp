@@ -9,7 +9,8 @@ int main (int argc, char** argv)
   ros::NodeHandle nodeHandle("~");
 
   bag_extractor::PC2BIN pc2bin(nodeHandle);
-
+  pc2bin.extract();
+  
   ros::spin ();
 
 }

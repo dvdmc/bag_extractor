@@ -10,14 +10,16 @@ project(bag_extractor)
 find_package(catkin REQUIRED 
 COMPONENTS
   roscpp
-  rospy
   sensor_msgs
   std_msgs
+  rosbag
+  cv_bridge
+  novatel_gps_driver
 )
 
-find_package(Boost REQUIRED COMPONENTS
-  date_time
-)
+find_package(Boost)
+
+find_package(OpenCV 3.2 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -113,13 +115,14 @@ catkin_package(
     include
   LIBRARIES 
     ${PROJECT_NAME}_core
-  CATKIN_DEPENDS 
-    pcl_conversions 
-    pcl_ros 
-    roscpp 
-    rospy 
-    sensor_msgs 
+  CATKIN_DEPENDS
+    pcl_conversions
+    pcl_ros
+    roscppp
+    sensor_msgs
     std_msgs
+    rosbag
+    novatel_gps_driver
 #  DEPENDS system_lib
 )
 
@@ -133,6 +136,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -153,14 +157,21 @@ add_executable(pc2bin
   src/PC2BIN.cpp
 )
 
-add_executable(img_tmstp2txt 
-  src/img_tmstp2txt_node.cpp
-  src/ImgTmstp2Txt.cpp
+add_executable(imu2txt 
+  src/imu2txt_node.cpp
+  src/IMU2TXT.cpp
 )
-add_executable(pc_tmstp2txt
-  src/pc_tmstp2txt_node.cpp
-  src/PCTmstp2Txt.cpp
+
+add_executable(img2jpg 
+  src/img2jpg_node.cpp
+  src/IMG2JPG.cpp
 )
+
+add_executable(gps2txt 
+  src/gps2txt_node.cpp
+  src/GPS2TXT.cpp
+)
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
@@ -181,17 +192,22 @@ target_link_libraries(pc2bin
   ${catkin_LIBRARIES}
 )
 
-target_link_libraries(img_tmstp2txt
-  ${PROJECT_NAME}_core   
+target_link_libraries(imu2txt
+  ${PROJECT_NAME}_core
   ${catkin_LIBRARIES}
-   ${Boost_LIBRARIES}
 )
 
-target_link_libraries(pc_tmstp2txt
-  ${PROJECT_NAME}_core   
+target_link_libraries(img2jpg
+  ${PROJECT_NAME}_core
   ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
+  ${OpenCV_LIBS}
 )
+
+target_link_libraries(gps2txt
+  ${PROJECT_NAME}_core
+  ${catkin_LIBRARIES}
+)
+
 #############
 ## Install ##
 #############

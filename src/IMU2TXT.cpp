@@ -1,9 +1,9 @@
-#include "bag_extractor/PC2BIN.hpp"
+#include "bag_extractor/IMU2TXT.hpp"
 
 namespace bag_extractor
 {
 
-    PC2BIN::PC2BIN(ros::NodeHandle &nodeHandle)
+    IMU2TXT::IMU2TXT(ros::NodeHandle &nodeHandle)
         : nodeHandle_(nodeHandle)
     {
 
@@ -16,16 +16,31 @@ namespace bag_extractor
         ROS_INFO("Successfully launched node.");
     }
 
-    PC2BIN::~PC2BIN()
+    IMU2TXT::~IMU2TXT()
     {
     }
 
-    void PC2BIN::extract()
+    void IMU2TXT::extract()
     {
-        // Init a counter for the file names.
-        counter_ = 0;
+        // Create the file in the specified path.
+        std::string filename = "./" + folder_ + "data.txt";
 
+        // Open the file to store the data.
+        out_.open(filename.c_str(), std::ios::out);
+
+        // Check if the file was opened correctly.
+        if (!out_)
+        {
+            ROS_ERROR("Problem opening the file: %s!!!", filename.c_str());
+            ros::requestShutdown();
+        }
+
+        // Init a counter (Not used right now)
+        //counter_ = 0;
+
+        
         ROS_INFO("Topic: %s", topic_.c_str());
+        ROS_INFO("Saving IMU data into: %s", filename.c_str());
 
         // Open the bag using the bagname path.
         bag_.open(bagName_);
@@ -35,7 +50,7 @@ namespace bag_extractor
         specified bag would be to create a previous ros::View without 
         the time param to extract the max and min times of the bag 
         and check that the selected ones are in between. */
-
+        
         ros::Time ros_start_filter = ros::TIME_MIN;
         ros::Time ros_end_filter = ros::TIME_MAX;
 
@@ -53,15 +68,15 @@ namespace bag_extractor
         for (rosbag::MessageInstance const m : view)
         {
             // Get the message instance from the iterator.
-            sensor_msgs::PointCloud2ConstPtr msg = m.instantiate<sensor_msgs::PointCloud2>();
+            sensor_msgs::ImuConstPtr msg = m.instantiate<sensor_msgs::Imu>();
 
             // Compute and show the progress.
             uint64_t m_time = m.getTime().toNSec();
             float progress = (float)(m_time - begin_time) / (float)duration * 100;
-            ROS_INFO("Processing PC message ( %.2f%% )", progress);
+            ROS_INFO("Processing IMU message ( %.2f%% )", progress);
 
             // Process the imu msg and write to file.
-            pcMsgProcess_(msg);
+            imuMsgProcess_(msg);
 
             // Break the loop in case of shutdown.
             if (!ros::ok())
@@ -76,36 +91,7 @@ namespace bag_extractor
         ROS_INFO("Finished!");
     }
 
-    void PC2BIN::pcMsgProcess_(const sensor_msgs::PointCloud2ConstPtr &msg)
-    {
-        double timestamp = msg->header.stamp.toSec();
-
-        std::string filename = utils::get_file_name(counter_, folder_, timestamp, EXTENSION_);
-
-        ROS_INFO("Saving PointCloud into: %s", filename.c_str());
-
-        std::ofstream out;
-
-        out.open(filename.c_str(), std::ios::binary);
-
-        // Check if the file was opened correctly.
-        if (!out_)
-        {
-            ROS_ERROR("Problem opening the file: %s!!!", filename.c_str());
-            ros::requestShutdown();
-        }
-
-        // Create iterator for the data
-        for (sensor_msgs::PointCloud2ConstIterator<float> it(*msg, "x"); it != it.end(); ++it)
-        {
-            out.write(reinterpret_cast<const char *>(&it[0]), sizeof(float) * 4);
-        }
-        out.close();
-
-        counter_++;
-    }
-
-    void PC2BIN::setTimeFilters_(ros::Time &start, ros::Time &end)
+    void IMU2TXT::setTimeFilters_(ros::Time &start, ros::Time &end)
     {
 
         // Set the time filters if they were set.
@@ -124,7 +110,45 @@ namespace bag_extractor
         ROS_INFO("End filtering at: %f", end.toSec());
     }
 
-    bool PC2BIN::readParameters_()
+    void IMU2TXT::imuMsgProcess_(const sensor_msgs::ImuConstPtr &msg)
+    {
+        // Creates a quaternion with the message information.
+        tf::Quaternion q(
+            msg->orientation.x,
+            msg->orientation.y,
+            msg->orientation.z,
+            msg->orientation.w);
+
+        // Generate a rotation matrix 3x3 from the quaternion.
+        tf::Matrix3x3 m(q);
+
+        double roll, pitch, yaw;
+
+        m.getRPY(roll, pitch, yaw);
+
+        // Write a line for the imu data.
+        std::string r = "";
+
+        r += std::to_string(msg->header.stamp.toSec()) + " ";
+
+        r += std::to_string(roll) + " ";
+        r += std::to_string(pitch) + " ";
+        r += std::to_string(yaw) + " ";
+
+        r += std::to_string(msg->angular_velocity.x) + " ";
+        r += std::to_string(msg->angular_velocity.y) + " ";
+        r += std::to_string(msg->angular_velocity.z) + " ";
+
+        r += std::to_string(msg->linear_acceleration.x) + " ";
+        r += std::to_string(msg->linear_acceleration.y) + " ";
+        r += std::to_string(msg->linear_acceleration.z) + "\n";
+
+        out_.write(r.c_str(), r.length());
+
+        //counter_++;
+    }
+
+    bool IMU2TXT::readParameters_()
     {
         if (!nodeHandle_.getParam("folder", folder_))
             return false;

@@ -5,16 +5,24 @@
 // ROS
 #include <ros/ros.h>
 
+// Quaternion conversion
+#include <tf/tf.h>
+
 // Bag reading and processing
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 
-// PC specific includes
-#include <sensor_msgs/PointCloud2.h>
-#include <sensor_msgs/point_cloud2_iterator.h>
+// IMU specific includes
+#include <novatel_gps_msgs/Gpgga.h>
+#include <novatel_gps_msgs/Gprmc.h>
+
+//Boost
+//#include <boost/lexical_cast.hpp>
+// Can be used as an alternative to std::to_str but it seems that is slower for "float"
 
 // STD
 #include <string>
+#include <vector>
 
 namespace bag_extractor
 {
@@ -22,7 +30,7 @@ namespace bag_extractor
 /*!
 *  Main class for the node to handle the ROS interfacing.
 */
-class PC2BIN
+class GPS2TXT
 {
 
 public:
@@ -30,12 +38,12 @@ public:
      * Constructor.
      * @param nodeHandle the ROS node handle.
      */
-    PC2BIN(ros::NodeHandle &nodeHandle);
+    GPS2TXT(ros::NodeHandle &nodeHandle);
 
     /*!
      * Destructor;
      */
-    virtual ~PC2BIN();
+    virtual ~GPS2TXT();
 
     /*!
      * Extract all data.
@@ -59,9 +67,15 @@ private:
 
     /*!
      * ROS topic callback method.
-     * @param message the received message.
+     * @param msg the received GPGGA message.
      */
-    void pcMsgProcess_(const sensor_msgs::PointCloud2ConstPtr &msg);
+    void gpggaMsgProcess_(const novatel_gps_msgs::GpggaConstPtr &msg);
+
+    /*!
+     * ROS topic callback method.
+     * @param msg the received GPRMC message.
+     */
+    void gprmcMsgProcess_(const novatel_gps_msgs::GprmcConstPtr &msg);
 
     //! ROS node handle.
     ros::NodeHandle &nodeHandle_;
@@ -72,10 +86,10 @@ private:
     //! Folder name for the saved point clouds
     std::string folder_;
 
-    //! File to save the Velodyne data
+    //! File to save the Imu data
     std::ofstream out_;
 
-    //! Velodyne topic name
+    //! Imu topic name
     std::string topic_;
 
     //! Bag name
@@ -88,7 +102,7 @@ private:
     double end_time_filter_;
 
     //! Extension of the file to save the data.
-    const std::string EXTENSION_ = ".bin";
+    const std::string EXTENSION_ = ".txt";
 };
 
 } // namespace bag_extractor

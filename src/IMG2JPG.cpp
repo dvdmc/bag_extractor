@@ -1,9 +1,9 @@
-#include "bag_extractor/PC2BIN.hpp"
+#include "bag_extractor/IMG2JPG.hpp"
 
 namespace bag_extractor
 {
 
-    PC2BIN::PC2BIN(ros::NodeHandle &nodeHandle)
+    IMG2JPG::IMG2JPG(ros::NodeHandle &nodeHandle)
         : nodeHandle_(nodeHandle)
     {
 
@@ -12,19 +12,19 @@ namespace bag_extractor
             ROS_ERROR("Could not read parameters.");
             ros::requestShutdown();
         }
-
-        ROS_INFO("Successfully launched node.");
     }
 
-    PC2BIN::~PC2BIN()
+    IMG2JPG::~IMG2JPG()
     {
     }
 
-    void PC2BIN::extract()
+    void IMG2JPG::extract()
     {
-        // Init a counter for the file names.
+
+        // Init a counter (Not used right now)
         counter_ = 0;
 
+        ROS_INFO("Successfully launched node.");
         ROS_INFO("Topic: %s", topic_.c_str());
 
         // Open the bag using the bagname path.
@@ -53,15 +53,15 @@ namespace bag_extractor
         for (rosbag::MessageInstance const m : view)
         {
             // Get the message instance from the iterator.
-            sensor_msgs::PointCloud2ConstPtr msg = m.instantiate<sensor_msgs::PointCloud2>();
+            sensor_msgs::CompressedImageConstPtr msg = m.instantiate<sensor_msgs::CompressedImage>();
 
             // Compute and show the progress.
             uint64_t m_time = m.getTime().toNSec();
             float progress = (float)(m_time - begin_time) / (float)duration * 100;
-            ROS_INFO("Processing PC message ( %.2f%% )", progress);
+            ROS_INFO("Processing image message ( %.2f%% )", progress);
 
             // Process the imu msg and write to file.
-            pcMsgProcess_(msg);
+            imgMsgProcess_(msg);
 
             // Break the loop in case of shutdown.
             if (!ros::ok())
@@ -76,55 +76,23 @@ namespace bag_extractor
         ROS_INFO("Finished!");
     }
 
-    void PC2BIN::pcMsgProcess_(const sensor_msgs::PointCloud2ConstPtr &msg)
+    void IMG2JPG::imgMsgProcess_(const sensor_msgs::CompressedImageConstPtr &msg)
     {
+
         double timestamp = msg->header.stamp.toSec();
 
         std::string filename = utils::get_file_name(counter_, folder_, timestamp, EXTENSION_);
 
-        ROS_INFO("Saving PointCloud into: %s", filename.c_str());
+        ROS_INFO("Saving image into: %s", filename.c_str());
 
-        std::ofstream out;
+        cv_bridge::CvImagePtr img = cv_bridge::toCvCopy(msg);
 
-        out.open(filename.c_str(), std::ios::binary);
-
-        // Check if the file was opened correctly.
-        if (!out_)
-        {
-            ROS_ERROR("Problem opening the file: %s!!!", filename.c_str());
-            ros::requestShutdown();
-        }
-
-        // Create iterator for the data
-        for (sensor_msgs::PointCloud2ConstIterator<float> it(*msg, "x"); it != it.end(); ++it)
-        {
-            out.write(reinterpret_cast<const char *>(&it[0]), sizeof(float) * 4);
-        }
-        out.close();
+        cv::imwrite(filename, img->image);
 
         counter_++;
     }
 
-    void PC2BIN::setTimeFilters_(ros::Time &start, ros::Time &end)
-    {
-
-        // Set the time filters if they were set.
-        if (start_time_filter_ >= 0)
-        {
-            start = ros::Time(start_time_filter_);
-        }
-
-        if (end_time_filter_ >= 0)
-        {
-            end = ros::Time(end_time_filter_);
-        }
-
-        ROS_INFO("Start filtering at: %f", start.toSec());
-
-        ROS_INFO("End filtering at: %f", end.toSec());
-    }
-
-    bool PC2BIN::readParameters_()
+    bool IMG2JPG::readParameters_()
     {
         if (!nodeHandle_.getParam("folder", folder_))
             return false;
@@ -139,6 +107,27 @@ namespace bag_extractor
         if (!nodeHandle_.getParam("end_time", end_time_filter_))
             end_time_filter_ = -1;
         return true;
+    }
+
+    void IMG2JPG::setTimeFilters_(ros::Time &start, ros::Time &end)
+    {
+
+        // Set the time filters if they were set.
+        if (start_time_filter_ >= 0)
+        {
+            ROS_INFO("Start time set. Filter set at: %f", start_time_filter_);
+            start = ros::Time(start_time_filter_);
+        }
+
+        if (end_time_filter_ >= 0)
+        {
+            ROS_INFO("End time set. Filter set at: %f", end_time_filter_);
+            end = ros::Time(end_time_filter_);
+        }
+
+        ROS_INFO("Start filtering at: %f", start.toSec());
+
+        ROS_INFO("End filtering at: %f", end.toSec());
     }
 
 } // namespace bag_extractor
