@@ -83,11 +83,13 @@ namespace bag_extractor
             {
                 ROS_INFO("ROS shutdown!");
                 bag_.close();
+                out_.close();
                 return;
             }
         }
 
         bag_.close();
+        out_.close();
         ROS_INFO("Finished!");
     }
 
