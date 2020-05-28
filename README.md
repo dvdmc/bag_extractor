@@ -88,7 +88,7 @@ Extract images from a compressed (!!!) image topic to a jpg image using cv_bridg
 
 Extract IMU data from a imu topic to a data.txt file. Each message is stored in one line following the next convention:
 
-*timestamp . . .*
+*timestamp roll pitch yaw ang_vel_X ang_vel_Y ang_vel_Z lin_acc_X lin_acc_Y lin_acc_Z*
 
 ### pc2bin
 
@@ -103,3 +103,9 @@ Extract PointCloud data from a Velodyne Points topic binary files. Each message 
 Extract GPS data from the novatel_driver GPGGA and GPRMC topics to a data.txt file. Each message is stored in one line following the next convention:
 
 *timestamp NMEA_standard_message* ([GPGGA](https://docs.novatel.com/oem7/Content/Logs/GPGGA.htm) or [GPRMC](https://docs.novatel.com/oem7/Content/Logs/GPRMC.htm))
+
+## Sequence extractor
+
+In case that your data has a similar format than the result of this extractor, you might also be interested in extracting sub-sequences from the extracted ones.
+With this goal, I created another tool stored in this [repository](https://github.com/davdmc/extract_sequence). 
+Details about the extraction of sub-sequences are explained in the repository.
