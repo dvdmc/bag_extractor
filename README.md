@@ -55,11 +55,11 @@ To build from source, clone the latest version from this repository into your ca
 Check the launchfile to create one that adjusts to your specific needs in structure, sensors and topics. A minimal example is included as a test and can be run with:
 
     roslaunch bag_extractor extract_dataset.launch\ 
-        bag:="[...]/catkin_ws/test/test.bag"
+        bag:="[...]/catkin_ws/src/bag_extractor/test/test.bag"
 
 ## Launch files
 
-* `extract_dataset.launch:` launch all the sensor nodes for the test.bag file.
+* `extract_dataset.launch:` launch all the sensor nodes for the test.bag file. This is an specific use case for the dataset showed in README_dataset.md but can be usde as an example for other cases.
 
 ## Nodes
 
@@ -81,7 +81,7 @@ Optional:
 
 Extract images from a compressed (!!!) image topic to a jpg image using cv_bridge and OpenCV. The images are saved with the following name convention:
 
-    *sequenceNumber_timestamp.jpg*
+    *deviceName_timestamp.jpg*
 
 ### imu2txt
 
@@ -96,6 +96,10 @@ Extract IMU data from a imu topic to a data.txt file. Each message is stored in 
 Extract PointCloud data from a Velodyne Points topic binary files. Each message is stored in one binary file as a Nx4 matrix (being N the number of points per message) following the next convention (used in the [KITTI](http://www.cvlibs.net/datasets/kitti/) dataset):
 
 *x y z intensity*
+
+The point clouds are saved with the following name convention:
+
+    *deviceName_timestamp.bin*
 
 ### gps2txt
 
