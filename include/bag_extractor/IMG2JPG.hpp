@@ -100,9 +100,15 @@ private:
     //! Rosbag
     rosbag::Bag bag_;
 
+    //! Start time for the bag query.
     double start_time_filter_;
+
+    //! End time for the bag query.
     double end_time_filter_;
     
+    //! Part of the folder name used for the file name (Specific use case).
+    std::string device_;
+
     //! Encoding of the compressed images
     // std::string encoding_ = "bgr8";
 

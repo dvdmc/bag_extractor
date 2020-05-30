@@ -22,10 +22,13 @@ namespace bag_extractor
     {
 
         // Init a counter (Not used right now)
-        counter_ = 0;
+        //counter_ = 0;
 
         ROS_INFO("Successfully launched node.");
         ROS_INFO("Topic: %s", topic_.c_str());
+
+        // Get the device name for the file name.
+        device_ = utils::get_device(folder_);
 
         // Open the bag using the bagname path.
         bag_.open(bagName_);
@@ -81,15 +84,13 @@ namespace bag_extractor
 
         double timestamp = msg->header.stamp.toSec();
 
-        std::string filename = utils::get_file_name(counter_, folder_, timestamp, EXTENSION_);
+        std::string filename = utils::get_file_name(folder_, device_, timestamp, EXTENSION_);
 
         ROS_INFO("Saving image into: %s", filename.c_str());
 
         cv_bridge::CvImagePtr img = cv_bridge::toCvCopy(msg);
 
         cv::imwrite(filename, img->image);
-
-        counter_++;
     }
 
     bool IMG2JPG::readParameters_()

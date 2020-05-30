@@ -23,9 +23,12 @@ namespace bag_extractor
     void PC2BIN::extract()
     {
         // Init a counter for the file names.
-        counter_ = 0;
+        //counter_ = 0;
 
         ROS_INFO("Topic: %s", topic_.c_str());
+
+        // Get the device name for the file name.
+        device_ = utils::get_device(folder_);
 
         // Open the bag using the bagname path.
         bag_.open(bagName_);
@@ -80,7 +83,7 @@ namespace bag_extractor
     {
         double timestamp = msg->header.stamp.toSec();
 
-        std::string filename = utils::get_file_name(counter_, folder_, timestamp, EXTENSION_);
+        std::string filename = utils::get_file_name(folder_, device_, timestamp, EXTENSION_);
 
         ROS_INFO("Saving PointCloud into: %s", filename.c_str());
 
@@ -101,8 +104,6 @@ namespace bag_extractor
             out.write(reinterpret_cast<const char *>(&it[0]), sizeof(float) * 4);
         }
         out.close();
-
-        counter_++;
     }
 
     void PC2BIN::setTimeFilters_(ros::Time &start, ros::Time &end)
