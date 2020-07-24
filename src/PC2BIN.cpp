@@ -34,11 +34,13 @@ namespace bag_extractor
         bag_.open(bagName_);
 
         // Declare the default time query to use if the time was not specified.
-        /* TODO A work around to check if the time is valid for the 
-        specified bag would be to create a previous ros::View without 
+        
+     
+        /* A workaround to check if the time is valid for the 
+        specified bag would be to create a preliminar ros::View without 
         the time param to extract the max and min times of the bag 
         and check that the selected ones are in between. */
-
+           
         ros::Time ros_start_filter = ros::TIME_MIN;
         ros::Time ros_end_filter = ros::TIME_MAX;
 

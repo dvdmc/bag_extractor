@@ -1,5 +1,6 @@
 #include "bag_extractor/Utils.hpp"
-#include <iostream>
+
+#include <sstream>
 namespace bag_extractor
 {
 
@@ -8,8 +9,7 @@ namespace bag_extractor
 
         std::string get_file_name(const std::string folder, const std::string device, const double timestamp, const std::string extension)
         {
-            std::string timestamp_str = std::to_string(timestamp);
-
+            std::string timestamp_str = fmt::format("{:0<10.9f}", timestamp);
             std::string filename = extension;
             filename = device + "-" + timestamp_str + filename;
 

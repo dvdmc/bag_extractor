@@ -31,9 +31,7 @@ In every case the timestamp is the ROS time recorded in the original rosbag file
 The dataset contains two sets of images. One corresponds to the RGB spectrum and the other to the infrarred spectrum.
 The name convention followed is:
 
-    device_timestamp.jpg
-
-The sequence number starts at 0 for each sequence.
+    device-timestamp.jpg
 
 Both images are stored in different directories named:
 
@@ -45,7 +43,7 @@ The capture ratio is 25 fps for both cameras. The image sizes are 704x576 pixels
 
 ## IMU
 
-The data from the IMU is stored in a single "data.txt" file inside `imu/ ` directory for each sequence. The file stores the messages as successive lines.
+The data from the IMU is stored in a single "data.txt" file inside `imu/` directory for each sequence. The file stores the messages as successive lines.
 The structure for each line is:
 
     timestamp roll pitch yaw ang_vel_X ang_vel_Y ang_vel_Z lin_acc_X lin_acc_Y lin_acc_Z
@@ -56,7 +54,7 @@ The structure for each line is:
 
 - Linear accelerations (lin_acc_{X, Y, Z}) are in m/s².
 
-The capture ratio is 64 Hz.
+The capture ratio is 100 Hz in 2018 and 64 Hz in 2019.
 
 ## Velodyne points
 
@@ -70,7 +68,24 @@ Each message is stored in one binary file as a Nx4 matrix (being N the number of
 
 They are stored in the folder `velodyne_points/`. The name convention followed is:
 
-    device_timestamp.jpg
+    device-timestamp.jpg
+
+In order to open and parse the data from the binary file, the followings commands are examples of use:
+
+* `numpy:`
+
+```python
+    points = np.fromfile(filename, dtype=np.float32).reshape(-1, 4)
+```
+
+* `MATLAB:`
+
+```matlab
+    fileID = fopen(filename, 'r');
+    format = 'float32';
+    data = fread(fileID, Inf, format);
+    xyzi=reshape(data,4,length(data)/4)';
+```
 
 ## GPS
 

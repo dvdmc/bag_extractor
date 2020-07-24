@@ -34,8 +34,9 @@ namespace bag_extractor
         bag_.open(bagName_);
 
         // Declare the default time query to use if the time was not specified.
-        /* TODO A work around to check if the time is valid for the 
-        specified bag would be to create a previous ros::View without 
+
+        /* A workaround to check if the time is valid for the 
+        specified bag would be to create a preliminar ros::View without 
         the time param to extract the max and min times of the bag 
         and check that the selected ones are in between. */
 
@@ -81,7 +82,7 @@ namespace bag_extractor
 
     void IMG2JPG::imgMsgProcess_(const sensor_msgs::CompressedImageConstPtr &msg)
     {
-
+        
         double timestamp = msg->header.stamp.toSec();
 
         std::string filename = utils::get_file_name(folder_, device_, timestamp, EXTENSION_);
@@ -91,23 +92,6 @@ namespace bag_extractor
         cv_bridge::CvImagePtr img = cv_bridge::toCvCopy(msg);
 
         cv::imwrite(filename, img->image);
-    }
-
-    bool IMG2JPG::readParameters_()
-    {
-        if (!nodeHandle_.getParam("folder", folder_))
-            return false;
-        if (!nodeHandle_.getParam("topic", topic_))
-            return false;
-        if (!nodeHandle_.getParam("bag", bagName_))
-            return false;
-
-        // Init the time filters if specified or -1 otherwise.
-        if (!nodeHandle_.getParam("start_time", start_time_filter_))
-            start_time_filter_ = -1;
-        if (!nodeHandle_.getParam("end_time", end_time_filter_))
-            end_time_filter_ = -1;
-        return true;
     }
 
     void IMG2JPG::setTimeFilters_(ros::Time &start, ros::Time &end)
@@ -129,6 +113,24 @@ namespace bag_extractor
         ROS_INFO("Start filtering at: %f", start.toSec());
 
         ROS_INFO("End filtering at: %f", end.toSec());
+    }
+
+    bool IMG2JPG::readParameters_()
+    {
+        if (!nodeHandle_.getParam("folder", folder_))
+            return false;
+        if (!nodeHandle_.getParam("topic", topic_))
+            return false;
+        if (!nodeHandle_.getParam("bag", bagName_))
+            return false;
+
+        // Init the time filters if specified or -1 otherwise.
+        if (!nodeHandle_.getParam("start_time", start_time_filter_))
+            start_time_filter_ = -1;
+        if (!nodeHandle_.getParam("end_time", end_time_filter_))
+            end_time_filter_ = -1;
+
+        return true;
     }
 
 } // namespace bag_extractor

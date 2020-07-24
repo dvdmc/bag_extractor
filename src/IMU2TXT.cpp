@@ -46,8 +46,9 @@ namespace bag_extractor
         bag_.open(bagName_);
 
         // Declare the default time query to use if the time was not specified.
-        /* TODO A work around to check if the time is valid for the 
-        specified bag would be to create a previous ros::View without 
+
+        /* A workaround to check if the time is valid for the 
+        specified bag would be to create a preliminar ros::View without 
         the time param to extract the max and min times of the bag 
         and check that the selected ones are in between. */
         
@@ -93,6 +94,47 @@ namespace bag_extractor
         ROS_INFO("Finished!");
     }
 
+    void IMU2TXT::imuMsgProcess_(const sensor_msgs::ImuConstPtr &msg)
+    {
+        // Creates a quaternion with the message information.
+        tf::Quaternion q(
+            msg->orientation.x,
+            msg->orientation.y,
+            msg->orientation.z,
+            msg->orientation.w);
+
+        // Generate a rotation matrix 3x3 from the quaternion.
+        tf::Matrix3x3 m(q);
+
+        double roll, pitch, yaw;
+
+        m.getRPY(roll, pitch, yaw);
+
+       // Create the container for the string.
+        std::ostringstream str;
+
+        str << fmt::format("{:0<10.9f}", msg->header.stamp.toSec()) << " ";
+
+        str << roll << " ";
+        str << pitch << " ";
+        str << yaw << " ";
+
+        str << msg->angular_velocity.x << " ";
+        str << msg->angular_velocity.y << " ";
+        str << msg->angular_velocity.z << " ";
+
+        str << msg->linear_acceleration.x << " ";
+        str << msg->linear_acceleration.y << " ";
+        str << msg->linear_acceleration.z << "\n";
+
+        std::string r = str.str();
+
+        //ROS_INFO("Printing IMU sentence: \n%s", r.c_str());
+        out_.write(r.c_str(), r.length());
+
+        //counter_++;
+    }
+
     void IMU2TXT::setTimeFilters_(ros::Time &start, ros::Time &end)
     {
 
@@ -110,44 +152,6 @@ namespace bag_extractor
         ROS_INFO("Start filtering at: %f", start.toSec());
 
         ROS_INFO("End filtering at: %f", end.toSec());
-    }
-
-    void IMU2TXT::imuMsgProcess_(const sensor_msgs::ImuConstPtr &msg)
-    {
-        // Creates a quaternion with the message information.
-        tf::Quaternion q(
-            msg->orientation.x,
-            msg->orientation.y,
-            msg->orientation.z,
-            msg->orientation.w);
-
-        // Generate a rotation matrix 3x3 from the quaternion.
-        tf::Matrix3x3 m(q);
-
-        double roll, pitch, yaw;
-
-        m.getRPY(roll, pitch, yaw);
-
-        // Write a line for the imu data.
-        std::string r = "";
-
-        r += std::to_string(msg->header.stamp.toSec()) + " ";
-
-        r += std::to_string(roll) + " ";
-        r += std::to_string(pitch) + " ";
-        r += std::to_string(yaw) + " ";
-
-        r += std::to_string(msg->angular_velocity.x) + " ";
-        r += std::to_string(msg->angular_velocity.y) + " ";
-        r += std::to_string(msg->angular_velocity.z) + " ";
-
-        r += std::to_string(msg->linear_acceleration.x) + " ";
-        r += std::to_string(msg->linear_acceleration.y) + " ";
-        r += std::to_string(msg->linear_acceleration.z) + "\n";
-
-        out_.write(r.c_str(), r.length());
-
-        //counter_++;
     }
 
     bool IMU2TXT::readParameters_()

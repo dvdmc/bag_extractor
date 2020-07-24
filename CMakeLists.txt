@@ -18,7 +18,7 @@ COMPONENTS
 )
 
 find_package(Boost)
-
+find_package(fmt)
 find_package(OpenCV 3.2 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
@@ -116,8 +116,6 @@ catkin_package(
   LIBRARIES 
     ${PROJECT_NAME}_core
   CATKIN_DEPENDS
-    pcl_conversions
-    pcl_ros
     roscpp
     sensor_msgs
     std_msgs
@@ -140,7 +138,7 @@ include_directories(
 )
 
 ## Declare a C++ library
- add_library(${PROJECT_NAME}_core
+ add_library(${PROJECT_NAME}_core STATIC
    src/Utils.cpp
  )
 
@@ -185,6 +183,7 @@ add_executable(gps2txt
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_core
   ${catkin_LIBRARIES}
+  fmt::fmt
 )
 
 target_link_libraries(pc2bin
@@ -195,6 +194,7 @@ target_link_libraries(pc2bin
 target_link_libraries(imu2txt
   ${PROJECT_NAME}_core
   ${catkin_LIBRARIES}
+  fmt::fmt
 )
 
 target_link_libraries(img2jpg
@@ -206,6 +206,7 @@ target_link_libraries(img2jpg
 target_link_libraries(gps2txt
   ${PROJECT_NAME}_core
   ${catkin_LIBRARIES}
+  fmt::fmt
 )
 
 #############

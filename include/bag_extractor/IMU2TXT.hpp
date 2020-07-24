@@ -15,18 +15,18 @@
 // IMU specific includes
 #include <sensor_msgs/Imu.h>
 
-//Boost
-//#include <boost/lexical_cast.hpp>
-// Can be used as an alternative to std::to_str but it seems that is slower for "float"
+// fmt
+#include <fmt/core.h>
 
 // STD
 #include <string>
+#include <iostream>
 
 namespace bag_extractor
 {
 
 /*!
-*  Main class for the node to handle the ROS interfacing.
+*  Main class for the IMU bag extractor.
 */
 class IMU2TXT
 {
@@ -45,7 +45,6 @@ public:
 
     /*!
      * Extract all data.
-     * TODO: It takes the start and end point params if specified.
      */
     void extract();
 
@@ -72,16 +71,16 @@ private:
     //! ROS node handle.
     ros::NodeHandle &nodeHandle_;
 
-    //! Counter for the number of files
-    int counter_;
+    //! Counter for the number of msgs (USED FOR SEQUENCING)
+    //int counter_;
 
-    //! Folder name for the saved point clouds
+    //! Folder name for the saved IMU data
     std::string folder_;
 
-    //! File to save the Imu data
+    //! File to save the IMU data
     std::ofstream out_;
 
-    //! Imu topic name
+    //! IMU topic name
     std::string topic_;
 
     //! Bag name

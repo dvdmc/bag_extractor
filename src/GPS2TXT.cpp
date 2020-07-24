@@ -35,7 +35,7 @@ namespace bag_extractor
             ros::requestShutdown();
         }
 
-        // Init a counter (Not used right now)
+        // Init a counter (USED FOR SEQUENCING)
         //counter_ = 0;
 
         ROS_INFO("Saving GPS data into: %s", filename.c_str());
@@ -44,8 +44,9 @@ namespace bag_extractor
         bag_.open(bagName_);
 
         // Declare the default time query to use if the time was not specified.
-        /* TODO A work around to check if the time is valid for the 
-        specified bag would be to create a previous ros::View without 
+
+        /* A workaround to check if the time is valid for the 
+        specified bag would be to create a preliminar ros::View without 
         the time param to extract the max and min times of the bag 
         and check that the selected ones are in between. */
 
@@ -60,12 +61,12 @@ namespace bag_extractor
         std::vector<std::string> topics = utils::split_strings(topic_, ',');
 
         ROS_INFO("Topics: ");
-        for(std::string const topic : topics)
+        for (std::string const topic : topics)
         {
-            ROS_INFO("%s",topic.c_str());
+            ROS_INFO("%s", topic.c_str());
         }
 
-        // Create the topic queryto extract information about.
+        // Create the topic query to extract information.
         rosbag::View view(bag_, rosbag::TopicQuery(topics), ros_start_filter, ros_end_filter);
 
         // Initialize time data for progress indicator.
@@ -139,26 +140,59 @@ namespace bag_extractor
 
     void GPS2TXT::gpggaMsgProcess_(const novatel_gps_msgs::GpggaConstPtr &msg)
     {
-        std::string r = "";
+        // Create the container for the string.
+        std::ostringstream str;
 
-        r += std::to_string(msg->header.stamp.toSec()) + " $GPGGA,";
+        // Insert the timestamp with all the available decimals.
+        str << fmt::format("{:0<10.9f}", msg->header.stamp.toSec()) << " $GPGGA,";
 
-        r += std::to_string(msg->utc_seconds) + ",";
-        r += std::to_string(msg->lat) + ",";
-        r += msg->lat_dir + ",";
-        r += std::to_string(msg->lon) + ",";
-        r += msg->lon_dir + ",";
-        r += std::to_string(msg->gps_qual) + ",";
-        r += std::to_string(msg->num_sats) + ",";
-        r += std::to_string(msg->hdop) + ",";
-        r += std::to_string(msg->alt) + ",";
-        r += msg->altitude_units + ",";
-        r += std::to_string(msg->undulation) + ",";
-        r += msg->undulation_units + ",";
-        r += std::to_string(msg->diff_age) + ",";
-        r += msg->station_id + "\n";
+        // Get the utc seconds and convert it to NMEA utc time format: HHMMSS.SSS
+        float time = msg->utc_seconds;
+        int hour = time / 3600;
+        time = fmod(time, 3600);
+        int min = time / 60;
+        float sec = fmod(time, 60);
 
-        ROS_INFO("Printing GPGGA sentence: \n%s",r.c_str());
+        str << fmt::format("{:0>2}{:0>2}{:0^2.3f}", hour, min, sec) << ",";
+
+        // Get latitude and convert it from decimal degrees to degrees and minutes.
+        int deg = msg->lat;
+        float deg_min = (msg->lat - deg) * 60;
+        str << fmt::format("{}{:2.10f}", deg, deg_min) << ",";
+        str << msg->lat_dir << ",";
+
+        // Get longitude and convert it from decimal degrees to degrees and minutes.
+        deg = msg->lon;
+        deg_min = (msg->lon - deg) * 60;
+        str << fmt::format("{}{:2.10f}", deg, deg_min) << ",";
+        str << msg->lon_dir << ",";
+
+        str << msg->gps_qual << ",";
+
+        // Number of sats must be in NN format.
+        str << fmt::format("{:0>2}", msg->num_sats) << ",";
+
+        str << msg->hdop << ",";
+        str << msg->alt << ",";
+        str << msg->altitude_units << ",";
+        str << msg->undulation << ",";
+        str << msg->undulation_units << ",";
+
+        // Add only if differential correction is available.
+        if (msg->station_id != "")
+        {
+            str << msg->diff_age << ",";
+        }
+        else
+        {
+            str << ",";
+        }
+        // Empty if there is no differential correction.
+        str << msg->station_id << "\n";
+
+        std::string r = str.str();
+
+        //ROS_INFO("Printing GPGGA sentence: \n%s", r.c_str());
         out_.write(r.c_str(), r.length());
 
         //counter_++;
@@ -166,24 +200,56 @@ namespace bag_extractor
 
     void GPS2TXT::gprmcMsgProcess_(const novatel_gps_msgs::GprmcConstPtr &msg)
     {
-        std::string r = "";
+        // Create the container for the string.
+        std::ostringstream str;
 
-        r += std::to_string(msg->header.stamp.toSec()) + " $GPRMC,";
+        // Insert the timestamp with all the available decimals.
+        str << fmt::format("{:0<10.9f}", msg->header.stamp.toSec()) << " $GPRMC,";
 
-        r += std::to_string(msg->utc_seconds) + ",";
-        r += msg->position_status + ",";
-        r += std::to_string(msg->lat) + ",";
-        r += msg->lat_dir + ",";
-        r += std::to_string(msg->lon) + ",";
-        r += msg->lon_dir + ",";
-        r += std::to_string(msg->speed) + ",";
-        r += std::to_string(msg->track) + ",";
-        r += msg->date + ",";
-        r += std::to_string(msg->mag_var) + ",";
-        r += msg->mag_var_direction + ",";
-        r += msg->mode_indicator + "\n";
+        // Get the utc seconds and convert it to NMEA utc time format: HHMMSS.SSS
+        float time = msg->utc_seconds;
+        int hour = time / 3600;
+        time = fmod(time, 3600);
+        int min = time / 60;
+        float sec = fmod(time, 60);
 
-        ROS_INFO("Printing GPRMC sentence: \n%s",r.c_str());
+        str << fmt::format("{:0>2}{:0>2}{:0^2.3f}", hour, min, sec) << ",";
+        str << msg->position_status << ",";
+
+        // Get latitude and convert it from decimal degrees to degrees and minutes.
+        int deg = msg->lat;
+        float deg_min = (msg->lat - deg) * 60;
+        str << fmt::format("{}{:2.10f}", deg, deg_min) << ",";
+        str << msg->lat_dir << ",";
+
+        // Get longitude and convert it from decimal degrees to degrees and minutes.
+        deg = msg->lon;
+        deg_min = (msg->lon - deg) * 60;
+        str << fmt::format("{}{:2.10f}", deg, deg_min) << ",";
+        str << msg->lon_dir << ",";
+
+        str << msg->speed << ",";
+        str << msg->track << ",";
+
+        // Convert date from the message to NMEA date format: DDMMYYYY.
+        std::string date = msg->date;
+        std::string delimiter = "-";
+
+        size_t delimiter_len = delimiter.length();
+        size_t year_pos = msg->date.find(delimiter, 0);
+        size_t month_pos = msg->date.find(delimiter, year_pos + delimiter_len);
+        std::string year = date.substr(0, year_pos);
+        std::string month = msg->date.substr(year_pos + delimiter_len, month_pos - (year_pos + delimiter_len));
+        std::string day = msg->date.substr(month_pos + delimiter_len, date.length() - (month_pos + delimiter_len));
+        str << day << month << year << ",";
+
+        str << msg->mag_var << ",";
+        str << msg->mag_var_direction << ",";
+        str << msg->mode_indicator << "\n";
+
+        std::string r = str.str();
+
+        //ROS_INFO("Printing GPRMC sentence: \n%s", r.c_str());
         out_.write(r.c_str(), r.length());
 
         //counter_++;
@@ -203,6 +269,7 @@ namespace bag_extractor
             start_time_filter_ = -1;
         if (!nodeHandle_.getParam("end_time", end_time_filter_))
             end_time_filter_ = -1;
+            
         return true;
     }
 

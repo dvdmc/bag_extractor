@@ -39,7 +39,6 @@ public:
 
     /*!
      * Extract all data.
-     * TODO: It takes the start and end point params if specified.
      */
     void extract();
 

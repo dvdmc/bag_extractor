@@ -12,11 +12,10 @@
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 
-// IMU specific includes
+// ROS Image specific includes
 #include <sensor_msgs/CompressedImage.h>
 
 // OpenCV
-
 #include <opencv2/imgcodecs.hpp>
 
 // CV bridge
@@ -24,10 +23,6 @@
 
 // Image transport
 #include <image_transport/image_transport.h>
-
-//Boost
-//#include <boost/lexical_cast.hpp>
-// Can be used as an alternative to std::to_str but it seems that is slower for "float"
 
 // STD
 #include <string>
@@ -55,7 +50,6 @@ public:
 
     /*!
      * Extract all data.
-     * TODO: It takes the start and end point params if specified.
      */
     void extract();
 
@@ -82,16 +76,16 @@ private:
     //! ROS node handle.
     ros::NodeHandle &nodeHandle_;
 
-    //! Counter for the number of files
-    int counter_;
+    //! Counter for the number of files (USED FOR SEQUENCING)
+    //int counter_;
 
-    //! Folder name for the saved point clouds
+    //! Folder name for the saved images
     std::string folder_;
 
-    //! File to save the Imu data
+    //! File to save the image data
     std::ofstream out_;
 
-    //! Velodyne topic name
+    //! Image topic name
     std::string topic_;
 
     //! Bag name

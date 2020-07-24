@@ -5,20 +5,16 @@
 // ROS
 #include <ros/ros.h>
 
-// Quaternion conversion
-#include <tf/tf.h>
-
 // Bag reading and processing
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
 
-// IMU specific includes
+// GPS specific includes
 #include <novatel_gps_msgs/Gpgga.h>
 #include <novatel_gps_msgs/Gprmc.h>
 
-//Boost
-//#include <boost/lexical_cast.hpp>
-// Can be used as an alternative to std::to_str but it seems that is slower for "float"
+// fmt
+#include <fmt/core.h>
 
 // STD
 #include <string>
@@ -28,7 +24,7 @@ namespace bag_extractor
 {
 
 /*!
-*  Main class for the node to handle the ROS interfacing.
+*  Main class for the GPS bag extractor.
 */
 class GPS2TXT
 {
@@ -47,7 +43,6 @@ public:
 
     /*!
      * Extract all data.
-     * TODO: It takes the start and end point params if specified.
      */
     void extract();
 
@@ -80,16 +75,16 @@ private:
     //! ROS node handle.
     ros::NodeHandle &nodeHandle_;
 
-    //! Counter for the number of files
-    int counter_;
+    //! Counter for the number of msgs (USED FOR SEQUENCING)
+    //int counter_;
 
-    //! Folder name for the saved point clouds
+    //! Folder name for the saved GPS data
     std::string folder_;
 
-    //! File to save the Imu data
+    //! File to save the GPS data
     std::ofstream out_;
 
-    //! Imu topic name
+    //! GPS topic name
     std::string topic_;
 
     //! Bag name

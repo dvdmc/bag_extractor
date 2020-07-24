@@ -35,11 +35,9 @@ The different implemented nodes in this repo offer a wide variety of examples:
     * sensor_msgs
     * rosbag
     * cv_bridge
-    * pcl_conversions (!REVISE)
-    * pcl_ros (!REVISE)
-    * libpcl-all-dev (Build depend) (!REVISE)
-    * libpcl-all (Exec depend) (!REVISE)
-    * novatel_gps_driver
+    * novatel_gps_driver (modified)
+
+* [fmt](https://github.com/fmtlib/fmt): Used for ease in formatting text.
 
 #### Building
 
@@ -100,6 +98,23 @@ Extract PointCloud data from a Velodyne Points topic binary files. Each message 
 The point clouds are saved with the following name convention:
 
     *deviceName_timestamp.bin*
+
+In order to open and parse the data from the binary file, the followings commands are examples of use:
+
+* `numpy:`
+
+```python
+    points = np.fromfile(filename, dtype=np.float32).reshape(-1, 4)
+```
+
+* `MATLAB:`
+
+```matlab
+    fileID = fopen(filename, 'r');
+    format = 'float32';
+    data = fread(fileID, Inf, format);
+    xyzi=reshape(data,4,length(data)/4)';
+```
 
 ### gps2txt
 

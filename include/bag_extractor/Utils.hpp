@@ -5,6 +5,10 @@
 #include <vector>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
+
+// fmt
+#include <fmt/core.h>
 
 namespace bag_extractor
 {
