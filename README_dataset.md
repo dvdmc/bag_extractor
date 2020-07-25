@@ -75,6 +75,8 @@ In order to open and parse the data from the binary file, the followings command
 * `numpy:`
 
 ```python
+    import numpy as np
+    
     points = np.fromfile(filename, dtype=np.float32).reshape(-1, 4)
 ```
 
