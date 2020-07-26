@@ -103,7 +103,8 @@ namespace bag_extractor
         // Create iterator for the data
         for (sensor_msgs::PointCloud2ConstIterator<float> it(*msg, "x"); it != it.end(); ++it)
         {
-            out.write(reinterpret_cast<const char *>(&it[0]), sizeof(float) * 4);
+            out.write(reinterpret_cast<const char *>(&it[0]), sizeof(float) * 3);
+            out.write(reinterpret_cast<const char *>(&it[4]), sizeof(float));
         }
         out.close();
     }
