@@ -1,0 +1,31 @@
+<launch>
+
+  <!--Global route to the bagfile to extract-->
+  <arg name="bag" default="/home/david/Research/ETH/eth_ws/visim.bag"/>
+
+  <!--Folder to contain the outputs inside ~/.ros folder-->
+  <arg name="folder" default="result/"/>
+
+  <!--Topics-->
+  <!--Image compressed topic in the bag-->
+  <arg name="rgb_topic" default="/firefly/vrglasses_for_robots_ros/color_map"/>
+
+  <!--Folder names-->
+  <!--Folder to save the images under the $folder directory-->
+  <arg name="rgb_folder" default=""/>
+
+  <!--Time selection-->
+  <!--Start time for the extraction of data-->
+  <arg name="start_time" default="-1"/>
+  <!--End time for the extraction of data-->
+  <arg name="end_time" default="-1"/>
+
+  <!--Nodes to extract data from topics.-->
+  <node name="rgb_extractor" type="img2jpg" pkg="bag_extractor" output="screen"
+  args="_folder:=$(arg folder)$(arg rgb_folder)
+        _topic:=$(arg rgb_topic)
+        _bag:=$(arg bag)
+        _start_time:=$(arg start_time)
+        _end_time:=$(arg end_time)"/>
+
+</launch>

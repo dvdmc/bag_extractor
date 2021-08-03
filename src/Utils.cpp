@@ -11,7 +11,13 @@ namespace bag_extractor
         {
             std::string timestamp_str = fmt::format("{:0<10.9f}", timestamp);
             std::string filename = extension;
-            filename = device + "-" + timestamp_str + filename;
+            if(device.compare(""))
+            {
+                filename = timestamp_str + filename;
+            } else
+            {
+                filename = device + "-" + timestamp_str + filename;
+            }
 
             filename = "./" + folder + filename;
 
@@ -20,6 +26,9 @@ namespace bag_extractor
 
         std::string get_device(const std::string folder)
         {
+            if(folder.compare(""))
+                return folder;
+                
             std::string delimiter = "/";
 
             std::string device = folder.substr(folder.find(delimiter, 0) + 1, folder.size() - 8);

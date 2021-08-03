@@ -57,14 +57,15 @@ namespace bag_extractor
         for (rosbag::MessageInstance const m : view)
         {
             // Get the message instance from the iterator.
-            sensor_msgs::CompressedImageConstPtr msg = m.instantiate<sensor_msgs::CompressedImage>();
+            //sensor_msgs::CompressedImageConstPtr msg = m.instantiate<sensor_msgs::CompressedImage>();
+            sensor_msgs::ImageConstPtr msg = m.instantiate<sensor_msgs::Image>();
 
             // Compute and show the progress.
             uint64_t m_time = m.getTime().toNSec();
             float progress = (float)(m_time - begin_time) / (float)duration * 100;
             ROS_INFO("Processing image message ( %.2f%% )", progress);
 
-            // Process the imu msg and write to file.
+            // Process the img msg and write to file.
             imgMsgProcess_(msg);
 
             // Break the loop in case of shutdown.
@@ -80,7 +81,7 @@ namespace bag_extractor
         ROS_INFO("Finished!");
     }
 
-    void IMG2JPG::imgMsgProcess_(const sensor_msgs::CompressedImageConstPtr &msg)
+    void IMG2JPG::imgCompressedMsgProcess_(const sensor_msgs::CompressedImageConstPtr &msg)
     {
         
         double timestamp = msg->header.stamp.toSec();
@@ -89,7 +90,21 @@ namespace bag_extractor
 
         ROS_INFO("Saving image into: %s", filename.c_str());
 
-        cv_bridge::CvImagePtr img = cv_bridge::toCvCopy(msg);
+        cv_bridge::CvImagePtr img = cv_bridge::toCvCopy(msg, "bgr8");
+
+        cv::imwrite(filename, img->image);
+    }
+
+    void IMG2JPG::imgMsgProcess_(const sensor_msgs::ImageConstPtr &msg)
+    {
+        
+        double timestamp = msg->header.stamp.toSec();
+
+        std::string filename = utils::get_file_name(folder_, device_, timestamp, EXTENSION_);
+
+        ROS_INFO("Saving image into: %s", filename.c_str());
+
+        cv_bridge::CvImagePtr img = cv_bridge::toCvCopy(msg, "bgr8");
 
         cv::imwrite(filename, img->image);
     }

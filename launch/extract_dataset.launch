@@ -8,9 +8,9 @@
 
   <!--Topics-->
   <!--Image compressed topic in the bag-->
-  <arg name="rgb_compressed_topic" default="/axis_rgb/camera/image_raw/compressed"/>
+  <arg name="rgb_topic" default="/axis_rgb/camera/image_raw"/>
   <!--Image compressed topic in the bag-->
-  <arg name="the_compressed_topic" default="/axis_the/camera/image_raw/compressed"/>
+  <arg name="the_topic" default="/axis_the/camera/image_raw"/>
   <!--Velodyne points topic in the bag-->
   <arg name="velodyne_topic" default="/velodyne_points"/>
   <!--IMU topic in the bag-->
@@ -56,7 +56,7 @@
   <!--Nodes to extract data from topics.-->
   <node name="rgb_extractor" type="img2jpg" pkg="bag_extractor" output="screen"
   args="_folder:=$(arg folder)$(arg rgb_folder)
-        _topic:=$(arg rgb_compressed_topic)
+        _topic:=$(arg rgb_topic)
         _bag:=$(arg bag)
         _start_time:=$(arg start_time)
         _end_time:=$(arg end_time)"/>
@@ -64,7 +64,7 @@
 
   <node name="the_extractor" type="img2jpg" pkg="bag_extractor" output="screen"
   args="_folder:=$(arg folder)$(arg the_folder)
-        _topic:=$(arg the_compressed_topic)
+        _topic:=$(arg the_topic)
         _bag:=$(arg bag)
         _start_time:=$(arg start_time)
         _end_time:=$(arg end_time)"/>

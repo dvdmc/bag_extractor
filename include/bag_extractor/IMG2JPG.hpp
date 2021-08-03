@@ -14,6 +14,7 @@
 
 // ROS Image specific includes
 #include <sensor_msgs/CompressedImage.h>
+#include <sensor_msgs/Image.h>
 
 // OpenCV
 #include <opencv2/imgcodecs.hpp>
@@ -71,7 +72,13 @@ private:
      * ROS topic callback method.
      * @param message the received message.
      */
-    void imgMsgProcess_(const sensor_msgs::CompressedImageConstPtr &msg);
+    void imgCompressedMsgProcess_(const sensor_msgs::CompressedImageConstPtr &msg);
+
+    /*!
+     * ROS topic callback method.
+     * @param message the received message.
+     */
+    void imgMsgProcess_(const sensor_msgs::ImageConstPtr &msg);
 
     //! ROS node handle.
     ros::NodeHandle &nodeHandle_;
